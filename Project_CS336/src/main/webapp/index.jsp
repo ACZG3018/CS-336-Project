@@ -16,7 +16,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: gray;
+            background-color: lightgray;
         }
         .login-container {
             background-color: white;
@@ -25,7 +25,6 @@
         }
         .login-container h2 {
             text-align: center;
-            margin-bottom: 1.5rem;
         }
         .form-group {
             margin-bottom: 1rem;
@@ -61,7 +60,7 @@
 	    if ("POST".equals(request.getMethod())) {
 	        
 	        String user = request.getParameter("username");
-	        String pass = request.getParameter("password");	   
+	        String passwd = request.getParameter("password");	   
 	        Connection con = null;
 	        PreparedStatement ps = null;
 	        ResultSet rs = null;
@@ -69,37 +68,43 @@
 	        try {
 	        	AppDB db = new AppDB();	
 				con = db.getConnection();
-	            
-	            String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
-	            ps = con.prepareStatement(sql);
+
+	            ps = con.prepareStatement("SELECT * FROM Users WHERE username = ? AND passwd = ?");
 	            ps.setString(1, user);
-	            ps.setString(2, pass);
+	            ps.setString(2, passwd);
 	            rs = ps.executeQuery();
 	
 	            if (rs.next()) {
-	                response.sendRedirect("Access Granted");
-	                return;
+	            	response.sendRedirect("logged_in.jsp");
+	            	return;
+	           
 	            } else {	               
-	                errorMessage = "Access Denied. Please try again.";
+	            	session.setAttribute("errorMessage", "Access Denied. Please try again.");
+	                response.sendRedirect("index.jsp");
+	                return;
 	            }
 	
 	        } catch (Exception e) {
 	            e.printStackTrace();
-	            errorMessage = "An error occurred. Please try again.";
+	            session.setAttribute("errorMessage", "An error occurred.");
+	            response.sendRedirect("index.jsp");
+	            return;
 	        } finally {
-	            // 5. Always close resources
 	            try { if (rs != null) rs.close(); } catch (Exception e) {};
 	            try { if (ps != null) ps.close(); } catch (Exception e) {};
 	            try { if (con != null) con.close(); } catch (Exception e) {};
 	        }
 	    }
 		%>
+		
 	    <div class="login-container">
-	        <h2>Log In Test</h2>
+	   <h2>Log In</h2>
 	        
-	        <%-- 6. This HTML-embedded code displays the error --%>
-        <%if (errorMessage != null) {
-            	out.println(errorMessage);
+        <% 
+        String errorMessageString = (String) session.getAttribute("errorMessage");
+        if (errorMessageString != null) {
+            	out.println(errorMessageString);
+            	session.removeAttribute("errorMessage");
             }%>
             	        
 	        <form action="index.jsp" method="POST">
