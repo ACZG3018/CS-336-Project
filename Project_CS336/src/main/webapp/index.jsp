@@ -1,11 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1" import="com.cs336_project.pkg.*"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.cs336_project.pkg.*"%>
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
 <%@ page import="jakarta.servlet.http.*,jakarta.servlet.*" %>
-
-
 <!DOCTYPE html>
-
 <html>
 	<head>
 	    <meta charset="UTF-8">
@@ -69,14 +66,16 @@
 	        	AppDB db = new AppDB();	
 				con = db.getConnection();
 
-	            ps = con.prepareStatement("SELECT * FROM Users WHERE username = ? AND passwd = ?");
+	            ps = con.prepareStatement("SELECT * FROM Users WHERE user_name = ? AND password = ?");
 	            ps.setString(1, user);
 	            ps.setString(2, passwd);
 	            rs = ps.executeQuery();
 	
 	            if (rs.next()) {
-	            	response.sendRedirect("logged_in.jsp");
-	            	return;
+	            	session.setAttribute("user_id", rs.getInt("user_id"));
+	                session.setAttribute("username", rs.getString("user_name"));
+	                response.sendRedirect("auctions.jsp");
+	                return;
 	           
 	            } else {	               
 	            	session.setAttribute("errorMessage", "Access Denied. Please try again.");
@@ -117,11 +116,16 @@
 	                <label for="password">Password:</label>
 	                <input type="password" id="password" name="password" required>
 	            </div>
-	            
 	            <button type="submit" class="login-button">Login</button>
 	        </form>
+	        
+    		<form action="createAccount.jsp">
+        		<button class="create-button">Create Account</button>
+    		</form>
+    		
+    		<form action="admin_dashboard.jsp">
+        		<button class="admin-link">Administration</button>
+    		</form>    		
 	    </div>
-
 	</body>
-	
 </html>

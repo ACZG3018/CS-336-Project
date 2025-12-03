@@ -9,24 +9,24 @@ public class AppDB {
 	public AppDB(){
 		
 	}
-	
 	public Connection getConnection(){
-		
-		String connectionUrl = "jdbc:mysql://localhost:3306/cs336_project";
+		// String connectionUrl = "jdbc:mysql://localhost:3306/cs_336_project_3?useSSL=false&serverTimezone=UTC";
+	    // Connection connection = null;
+		String connectionUrl = "jdbc:mysql://localhost:3306/cs_336_project_3";
 		Connection connection = null;
 		
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			System.out.println("Driver loaded");
+		} catch (Exception e) {
+	        System.out.println("Driver NOT loaded");
+	        e.printStackTrace();
+	    }
 		try {
 			connection = DriverManager.getConnection(connectionUrl,"root", "password");
+			System.out.println("Connected successfully!");
 		} catch (SQLException e) {
+			System.out.println("Connection FAILED!");
 			e.printStackTrace();
 		}
 		
@@ -38,7 +38,6 @@ public class AppDB {
 		try {
 			connection.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
