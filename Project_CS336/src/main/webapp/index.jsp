@@ -126,6 +126,10 @@
     		<form action="admin_dashboard.jsp">
         		<button class="admin-link">Administration</button>
     		</form>    		
+    		
+    		<form action="cr_helpdesk.jsp">
+        		<button class="cr-link">Customer Rep Helpdesk</button>
+    		</form>    		
 	    </div>
 	</body>
 </html>
