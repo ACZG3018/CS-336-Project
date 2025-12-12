@@ -161,33 +161,33 @@
 		        </div>
 		    </div>
 		
-		    <!-- Support Tickets  -->
+		    <!-- Question Support Tickets  -->
 			<div class="col-md-4">
 			    <div class="card h-100">
-			        <div class="card-header bg-warning">User Support Tickets</div>
+			        <div class="card-header bg-warning">Question Support</div>
 			        <div class="card-body">
-			            <h6>Open Tickets</h6>
+			            <h6>Question List</h6>
 			            <ul class="list-group mb-3">
 			                <%
 			                    con = db.getConnection();
 			                    ps = con.prepareStatement(
-			                        "SELECT q.question_id AS ticket_id, q.content AS ticket_content, u.user_name AS ticket_user " +
+			                        "SELECT q.question_id, q.content, u.user_name " +
 			                        "FROM questions q " +
 			                        "JOIN users u ON q.user_id = u.user_id " +
 			                        "ORDER BY q.question_id DESC"
 			                    );
 			                    rs = ps.executeQuery();
 			                    while(rs.next()) {
-			                        int tid = rs.getInt("ticket_id");
-			                        String ticketContent = rs.getString("ticket_content");
-			                        String ticketUser = rs.getString("ticket_user");
+			                        int questionId = rs.getInt("question_id");
+			                        String questionContent = rs.getString("content");
+			                        String questionUser = rs.getString("user_name");
 			                %>
 			                <li class="list-group-item d-flex justify-content-between align-items-center">
-			                    <strong>Ticket <%=tid%>:</strong> <%=ticketContent.length() > 40 ? ticketContent.substring(0, 40) + "..." : ticketContent %> 
-			                    <br><small class="text-muted">From: <%=ticketUser%></small>
-			                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
-			                            data-bs-target="#ticketModal_<%=tid%>">Open</button>
-			                </li>
+							    <strong>Question <%=questionId%>:</strong> 
+							    <%=questionContent.length() > 40 ? questionContent.substring(0, 40) + "..." : questionContent %> 
+							    <br><small class="text-muted">From: <%=questionUser%></small>
+							    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#questionModal_<%=questionId%>">Open</button>
+							</li>
 			                <% } rs.close(); ps.close(); con.close(); %>
 			            </ul>
 			        </div>
@@ -326,22 +326,22 @@
 		<%
 		    con = db.getConnection();
 		    ps = con.prepareStatement(
-		        "SELECT q.question_id AS ticket_id, q.content AS ticket_content, u.user_name AS ticket_user " +
+		        "SELECT q.question_id, q.content, u.user_name " +
 		        "FROM questions q " + 
 		       	"JOIN users u ON q.user_id = u.user_id"
 		    );
 		    rs = ps.executeQuery();
 		    while(rs.next()) {
-		        int tid = rs.getInt("ticket_id");
-		        String ticketContent = rs.getString("ticket_content");
-		        String ticketUser = rs.getString("ticket_user");
+		        int questionId = rs.getInt("question_id");
+		        String questionContent = rs.getString("content");
+		        String questionUser = rs.getString("user_name");
 		%>
-		<div class="modal fade" id="ticketModal_<%=tid%>" tabindex="-1">
+		<div class="modal fade" id="questionModal_<%=questionId%>" tabindex="-1">
 		    <div class="modal-dialog modal-dialog-scrollable modal-xl">
 		        <div class="modal-content">
 		            <div class="modal-header bg-warning text-dark">
-		                <h5 class="modal-title">Ticket <%=tid%> — <%=ticketContent%></h5>
-						<small class="text-muted" style="display:block; margin-left: 20px;">Submitted by: <%=ticketUser%></small>
+		                <h5 class="modal-title">Question<%=questionId%> — <%=questionContent%></h5>
+						<small class="text-muted" style="display:block; margin-left: 20px;">Submitted by: <%=questionUser%></small>
 		                <button class="btn-close" data-bs-dismiss="modal"></button>
 		            </div>
 		            <div class="modal-body">
@@ -353,7 +353,7 @@
 		                            "JOIN users u ON a.user_id = u.user_id " +
 		                            "WHERE a.question_id = ? ORDER BY a.created_at"
 		                        );
-		                        ps2.setInt(1, tid);
+		                        ps2.setInt(1, questionId);
 		                        ResultSet rs2 = ps2.executeQuery();
 		                        while(rs2.next()) {
 		                            String sender = rs2.getString("sender");
@@ -368,7 +368,7 @@
 		                    <% } rs2.close(); ps2.close(); %>
 		                </div>
 		                <form method="get">
-		                    <input type="hidden" name="replyTicket" value="<%=tid%>">
+		                    <input type="hidden" name="replyTicket" value="<%=questionId%>">
 		                    <textarea class="form-control mb-2" name="replyText" placeholder="Reply..." required></textarea>
 		                    <button class="btn btn-success w-100">Send</button>
 		                </form>
