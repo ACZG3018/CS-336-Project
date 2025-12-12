@@ -74,7 +74,17 @@
 	            if (rs.next()) {
 	            	session.setAttribute("user_id", rs.getInt("user_id"));
 	                session.setAttribute("username", rs.getString("user_name"));
-	                response.sendRedirect("auctions.jsp");
+	                session.setAttribute("role", rs.getString("role"));
+	                
+	                if ("ADMIN".equalsIgnoreCase(rs.getString("role"))) {
+	                    response.sendRedirect("admin_dashboard.jsp");
+	                } 
+	                else if ("REP".equalsIgnoreCase(rs.getString("role"))) {
+	                    response.sendRedirect("cr_helpdesk.jsp");
+	                } 
+	                else {
+	                    response.sendRedirect("auctions.jsp");
+	                }
 	                return;
 	           
 	            } else {	               

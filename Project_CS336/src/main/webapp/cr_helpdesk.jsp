@@ -64,10 +64,11 @@
 	String replyText = request.getParameter("replyText");
 	if (replyTicket != null && replyText != null) {
 		con = db.getConnection();
-        ps = con.prepareStatement("INSERT INTO ticket_messages (ticket_id, sender, message) VALUES (?, 'REPLACE_CUSTOMER_REP_NAME_FROM_TABLE', ?)");
+        ps = con.prepareStatement("INSERT INTO answers (question_id, user_id, content) VALUES (?, ?, ?)");
         
         ps.setInt(1, Integer.parseInt(replyTicket));
-        ps.setString(2, replyText);
+        ps.setInt(2, (int)session.getAttribute("user_id"));
+        ps.setString(3, replyText);
         ps.executeUpdate();
         ps.close();
 	
@@ -78,7 +79,7 @@
 	String adminChatText = request.getParameter("adminChatText");
 	
 	if (adminChatText != null) {
-	    String adminChatSender = "REPLACE_CUSTOMER_REP_NAME_FROM_TABLE";
+	    String adminChatSender = (String) session.getAttribute("username");
 	    
 	    con = db.getConnection();
         ps = con.prepareStatement("INSERT INTO admin_messages (sender, message) VALUES (?, ?)");
@@ -161,37 +162,37 @@
 		    </div>
 		
 		    <!-- Support Tickets  -->
-		    <div class="col-md-4">
-		        <div class="card h-100">
-		            <div class="card-header bg-warning">User Support Tickets</div>
-		            <div class="card-body">
-		                <h6>Open Tickets</h6>
-		                <ul class="list-group mb-3">
-		                
-		                <%
-		                    con = db.getConnection();
-		                    ps = con.prepareStatement("SELECT ticket_id, ticket FROM support_tickets ORDER BY ticket_id");
-		                    rs = ps.executeQuery();
-		                    while (rs.next()) {
-		                        int tid = rs.getInt("ticket_id");
-		                        String ticket = rs.getString("ticket");
-		                %>
-		                
-		                    <li class="list-group-item d-flex justify-content-between align-items-center">
-		                        <strong><%= tid %></strong> <%=ticket%>
-		                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
-		                                data-bs-target="#ticketModal_<%=tid%>">Open</button>
-		                    </li>
-		                    
-		                <% } 
-		                    rs.close(); 
-		                    ps.close(); 
-		                    con.close(); 
-		                %>
-		                </ul>
-		            </div>
-		        </div>
-		    </div>
+			<div class="col-md-4">
+			    <div class="card h-100">
+			        <div class="card-header bg-warning">User Support Tickets</div>
+			        <div class="card-body">
+			            <h6>Open Tickets</h6>
+			            <ul class="list-group mb-3">
+			                <%
+			                    con = db.getConnection();
+			                    ps = con.prepareStatement(
+			                        "SELECT q.question_id AS ticket_id, q.content AS ticket_content, u.user_name AS ticket_user " +
+			                        "FROM questions q " +
+			                        "JOIN users u ON q.user_id = u.user_id " +
+			                        "ORDER BY q.question_id DESC"
+			                    );
+			                    rs = ps.executeQuery();
+			                    while(rs.next()) {
+			                        int tid = rs.getInt("ticket_id");
+			                        String ticketContent = rs.getString("ticket_content");
+			                        String ticketUser = rs.getString("ticket_user");
+			                %>
+			                <li class="list-group-item d-flex justify-content-between align-items-center">
+			                    <strong>Ticket <%=tid%>:</strong> <%=ticketContent.length() > 40 ? ticketContent.substring(0, 40) + "..." : ticketContent %> 
+			                    <br><small class="text-muted">From: <%=ticketUser%></small>
+			                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+			                            data-bs-target="#ticketModal_<%=tid%>">Open</button>
+			                </li>
+			                <% } rs.close(); ps.close(); con.close(); %>
+			            </ul>
+			        </div>
+			    </div>
+			</div>
 		
 			<!-- Admin Contact  -->
 			<div class="col-md-4">
@@ -203,7 +204,7 @@
 			                    con = db.getConnection();
 			                    ps = con.prepareStatement("SELECT sender, message, sent_time FROM admin_messages ORDER BY sent_time");
 			                    rs = ps.executeQuery();
-			                    while(rs.next()) {
+			                    while (rs.next()) {
 			                        String sender = rs.getString("sender");
 			                        String message = rs.getString("message");
 			                        Timestamp time = rs.getTimestamp("sent_time");
@@ -324,36 +325,47 @@
 		
 		<%
 		    con = db.getConnection();
-		    ps = con.prepareStatement("SELECT ticket_id, ticket FROM support_tickets");
+		    ps = con.prepareStatement(
+		        "SELECT q.question_id AS ticket_id, q.content AS ticket_content, u.user_name AS ticket_user " +
+		        "FROM questions q " + 
+		       	"JOIN users u ON q.user_id = u.user_id"
+		    );
 		    rs = ps.executeQuery();
-		    while (rs.next()) {
+		    while(rs.next()) {
 		        int tid = rs.getInt("ticket_id");
-		        String ticket = rs.getString("ticket");
+		        String ticketContent = rs.getString("ticket_content");
+		        String ticketUser = rs.getString("ticket_user");
 		%>
 		<div class="modal fade" id="ticketModal_<%=tid%>" tabindex="-1">
 		    <div class="modal-dialog modal-dialog-scrollable modal-xl">
 		        <div class="modal-content">
 		            <div class="modal-header bg-warning text-dark">
-		                <h5 class="modal-title">Ticket: <%=tid%> — <%=ticket%></h5>
+		                <h5 class="modal-title">Ticket <%=tid%> — <%=ticketContent%></h5>
+						<small class="text-muted" style="display:block; margin-left: 20px;">Submitted by: <%=ticketUser%></small>
 		                <button class="btn-close" data-bs-dismiss="modal"></button>
 		            </div>
 		            <div class="modal-body">
 		                <div class="chat-box mb-3">
 		                    <%
-		                        PreparedStatement ps3 = con.prepareStatement("SELECT sender, message, sent_time FROM ticket_messages WHERE ticket_id=? ORDER BY sent_time");
-		                        ps3.setInt(1, tid);
-		                        ResultSet rs3 = ps3.executeQuery();
-		                        while (rs3.next()) {
+		                        PreparedStatement ps2 = con.prepareStatement(
+		                            "SELECT a.content AS message, u.user_name AS sender, u.role AS sender_role, a.created_at AS sent_time " +
+		                            "FROM answers a " + 
+		                            "JOIN users u ON a.user_id = u.user_id " +
+		                            "WHERE a.question_id = ? ORDER BY a.created_at"
+		                        );
+		                        ps2.setInt(1, tid);
+		                        ResultSet rs2 = ps2.executeQuery();
+		                        while(rs2.next()) {
+		                            String sender = rs2.getString("sender");
+		                            String senderRole = rs2.getString("sender_role");
+		                            String message = rs2.getString("message");
+		                            Timestamp sentTime = rs2.getTimestamp("sent_time");
 		                    %>
-		                        <div class="chat-msg">
-		                            <strong><%=rs3.getString("sender")%>:</strong><br>
-		                            <%=rs3.getString("message")%><br>
-		                            <small class="text-muted"><%=rs3.getTimestamp("sent_time")%></small>
-		                        </div>
-		                    <% } 
-		                        rs3.close(); 
-		                        ps3.close(); 
-		                    %>
+		                    <div class="chat-msg">
+		                        <strong><%=sender%> (<%=senderRole%>)</strong>: <%=message%><br>
+		                        <small class="text-muted"><%=sentTime%></small>
+		                    </div>
+		                    <% } rs2.close(); ps2.close(); %>
 		                </div>
 		                <form method="get">
 		                    <input type="hidden" name="replyTicket" value="<%=tid%>">
