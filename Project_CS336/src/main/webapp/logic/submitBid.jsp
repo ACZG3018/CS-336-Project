@@ -2,7 +2,7 @@
 <%
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
@@ -11,7 +11,7 @@
 
     if (auctionIdStr == null || amountStr == null) {
         session.setAttribute("bidError", "Missing bid fields.");
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
     }
 
@@ -33,7 +33,7 @@
 
         if (!rs.next()) {
             session.setAttribute("bidError", "Auction not found.");
-            response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
             return;
         }
 
@@ -49,7 +49,7 @@
 
         if (bidAmount < minRequired) {
             session.setAttribute("bidError", "Bid too low. Minimum required: " + minRequired);
-            response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
             return;
         }
 
@@ -79,7 +79,7 @@
 
     } catch (Exception e) {
         session.setAttribute("bidError", "Error placing bid: " + e.getMessage());
-        response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
         return;
 
     } finally {

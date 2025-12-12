@@ -1,7 +1,10 @@
-<%@ page import="java.sql.*, java.util.*, com.cs336_project.pkg.AppDB" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.cs336_project.pkg.*"%>
+<%@ page import="java.io.*,java.util.*,java.sql.*"%>
+<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*" %>
 <%
 Integer userId = (Integer) session.getAttribute("user_id");
-if (userId == null) { response.sendRedirect("index.jsp"); return; }
+if (userId == null) { response.sendRedirect("../index.jsp"); return; }
 
 int auctionId = Integer.parseInt(request.getParameter("auction_id"));
 String bidAmountStr = request.getParameter("bid_amount");
@@ -22,7 +25,10 @@ try {
     ps = con.prepareStatement("SELECT start_price, min_price, bid_increment, current_highest_bid, current_highest_bidder, reserve_price, end_time, seller_id FROM auctions WHERE auction_id = ? FOR UPDATE");
     ps.setInt(1, auctionId);
     rs = ps.executeQuery();
-    if (!rs.next()) { session.setAttribute("bidError","Auction not found."); response.sendRedirect("viewAuction.jsp?auction_id="+auctionId); return; }
+    if (!rs.next()) { 
+    	session.setAttribute("bidError","Auction not found."); 
+    	response.sendRedirect("../viewAuction.jsp?auction_id="+auctionId); return; 
+    }
 
     double startPrice = rs.getDouble("start_price");
     double minPrice = rs.getDouble("min_price"); // reserve is secret but stored
@@ -36,14 +42,14 @@ try {
     // check auction active & not ended
     if (endTime != null && endTime.before(new java.util.Date())) {
         session.setAttribute("bidError","Auction already ended.");
-        response.sendRedirect("viewAuction.jsp?auction_id="+auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id="+auctionId);
         return;
     }
 
     // Prevent seller bidding on own auction
     if (sellerId == userId) {
         session.setAttribute("bidError","Seller cannot bid on own auction.");
-        response.sendRedirect("viewAuction.jsp?auction_id="+auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id="+auctionId);
         return;
     }
 
@@ -54,7 +60,7 @@ try {
     double minAllowed = currentDisplay + increment;
     if (bidAmount < minAllowed) {
         session.setAttribute("bidError","Bid too low. Minimum allowed: " + String.format("%.2f", minAllowed));
-        response.sendRedirect("viewAuction.jsp?auction_id="+auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id="+auctionId);
         return;
     }
 
@@ -116,7 +122,7 @@ try {
                 // Insert the user's attempted bid as a record (optional) and notify them. Then rollback logic below.
                 // We'll simply notify and redirect.
                 session.setAttribute("bidError","Your automatic maximum is too low. Current auto max is " + topAutoMax);
-                response.sendRedirect("viewAuction.jsp?auction_id="+auctionId);
+                response.sendRedirect("../viewAuction.jsp?auction_id="+auctionId);
                 con.rollback();
                 return;
             }
@@ -169,7 +175,7 @@ try {
             ps.close();
 
             con.commit();
-            response.sendRedirect("viewAuction.jsp?auction_id="+auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id="+auctionId);
             return;
         } else {
             // no auto competitor -> manual bid becomes current
@@ -206,12 +212,12 @@ try {
     }
 
     con.commit();
-    response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+    response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
     return;
 } catch (Exception e) {
     if (con != null) try { con.rollback(); } catch (Exception ex) {}
     session.setAttribute("bidError", "Error placing bid: " + e.getMessage());
-    response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+    response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
     return;
 } finally {
     try { if (rs != null) rs.close(); } catch (Exception ex) {}

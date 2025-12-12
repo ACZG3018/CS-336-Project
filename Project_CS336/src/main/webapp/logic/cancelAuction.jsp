@@ -3,7 +3,7 @@
 <%
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
@@ -12,7 +12,7 @@
     String auctionIdStr = request.getParameter("auction_id");
     if (auctionIdStr == null) {
         session.setAttribute("auctionError", "Missing auction ID.");
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
     }
 
@@ -36,7 +36,7 @@
         if (!rs.next()) {
             session.setAttribute("auctionError",
                 "Auction not found or it is already inactive.");
-            response.sendRedirect("auctions.jsp");
+            response.sendRedirect("../auctions.jsp");
             return;
         }
 
@@ -47,7 +47,7 @@
         if (sellerId != userId) {
             session.setAttribute("auctionError",
                 "You can only cancel auctions you created.");
-            response.sendRedirect("auctions.jsp");
+            response.sendRedirect("../auctions.jsp");
             return;
         }
 
@@ -77,13 +77,13 @@
 
         session.setAttribute("auctionOK",
             "Auction #" + auctionId + " has been cancelled.");
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
 
     } catch (Exception e) {
         session.setAttribute("auctionError",
             "Error cancelling auction: " + e.getMessage());
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
 
     } finally {

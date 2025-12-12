@@ -1,11 +1,13 @@
-<%@ page import="java.sql.*, com.cs336_project.pkg.AppDB" %>
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.cs336_project.pkg.*"%>
+<%@ page import="java.io.*,java.util.*,java.sql.*"%>
+<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*" %>
 <%
     request.setCharacterEncoding("UTF-8");
 
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
@@ -36,7 +38,7 @@
         endTimeStr == null || make.trim().equals("") || model.trim().equals("")) {
 
         session.setAttribute("createError", "Missing required fields.");
-        response.sendRedirect("createListing.jsp");
+        response.sendRedirect("../createListing.jsp");
         return;
     }
 
@@ -62,7 +64,7 @@
         rs = ps.getGeneratedKeys();
         if (!rs.next()) {
             session.setAttribute("createError", "Failed to create vehicle.");
-            response.sendRedirect("createListing.jsp");
+            response.sendRedirect("../createListing.jsp");
             return;
         }
         int vehicleId = rs.getInt(1);
@@ -124,12 +126,12 @@
         ps.close();
 
         session.setAttribute("createOK", "Auction created successfully.");
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
 
     } catch (Exception e) {
         session.setAttribute("createError", "Error creating auction: " + e.getMessage());
-        response.sendRedirect("createListing.jsp");
+        response.sendRedirect("../createListing.jsp");
         return;
 
     } finally {

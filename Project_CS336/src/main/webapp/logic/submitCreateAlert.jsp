@@ -4,7 +4,7 @@
  
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
@@ -110,7 +110,7 @@
 
     if (error != null) {
         session.setAttribute("alertError", error);
-        response.sendRedirect("createAlert.jsp");
+        response.sendRedirect("../createAlert.jsp");
         return;
     }
 
@@ -162,12 +162,12 @@
         ps.executeUpdate();
 
         session.setAttribute("alertOK", "Alert created successfully.");
-        response.sendRedirect("createAlert.jsp");
+        response.sendRedirect("../createAlert.jsp");
         return;
 
     } catch (Exception ex) {
         session.setAttribute("alertError", "Database error: " + ex.getMessage());
-        response.sendRedirect("createAlert.jsp");
+        response.sendRedirect("../createAlert.jsp");
         return;
 
     } finally {

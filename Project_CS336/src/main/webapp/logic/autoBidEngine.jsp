@@ -2,13 +2,13 @@
 <%
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
     String auctionIdStr = request.getParameter("auction_id");
     if (auctionIdStr == null) {
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
     }
 
@@ -36,7 +36,7 @@
             rs.close();
             ps.close();
             con.commit();
-            response.sendRedirect("auctions.jsp");
+            response.sendRedirect("../auctions.jsp");
             return;
         }
 
@@ -57,7 +57,7 @@
         java.util.Date now = new java.util.Date();
         if (active != 1 || (endTime != null && now.after(endTime))) {
             con.commit();
-            response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
             return;
         }
 
@@ -192,14 +192,14 @@
         } // end while
 
         con.commit();
-        response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
         return;
 
     } catch (Exception e) {
         try { if (con != null) con.rollback(); } catch (Exception ex) {}
         e.printStackTrace();
         session.setAttribute("bidError", "Auto-bid error: " + e.getMessage());
-        response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
         return;
     } finally {
         try { if (rs != null) rs.close(); } catch (Exception ex) {}

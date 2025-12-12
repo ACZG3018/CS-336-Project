@@ -2,7 +2,7 @@
 <%
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
@@ -13,7 +13,7 @@
 
     if (auctionIdStr == null) {
         session.setAttribute("bidError", "Missing auction ID.");
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
     }
 
@@ -35,7 +35,7 @@
             ps.executeUpdate();
             ps.close();
 
-            response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
             return;
         }
 
@@ -120,12 +120,12 @@
         }
 
         // TRIGGER AUTO-BID ENGINE
-        response.sendRedirect("autoBidEngine.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../autoBidEngine.jsp?auction_id=" + auctionId);
         return;
 
     } catch (Exception e) {
         session.setAttribute("bidError", "Error saving auto-bid: " + e.getMessage());
-        response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
         return;
 
     } finally {

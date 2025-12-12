@@ -1,9 +1,12 @@
-<%@ page import="java.sql.*, com.cs336_project.pkg.AppDB" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.cs336_project.pkg.*"%>
+<%@ page import="java.io.*,java.util.*,java.sql.*"%>
+<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*" %>
 <%
     // User must be logged in
     Integer userId = (Integer) session.getAttribute("user_id");
     if (userId == null) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("../index.jsp");
         return;
     }
 
@@ -13,7 +16,7 @@
 
     if (bidIdStr == null || auctionIdStr == null) {
         session.setAttribute("bidError", "Invalid bid cancellation request.");
-        response.sendRedirect("auctions.jsp");
+        response.sendRedirect("../auctions.jsp");
         return;
     }
 
@@ -35,7 +38,7 @@
 
         if (!rs.next()) {
             session.setAttribute("bidError", "Auction not found.");
-            response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
             return;
         }
 
@@ -46,7 +49,7 @@
         // Make sure only seller can cancel
         if (sellerId != userId) {
             session.setAttribute("bidError", "You are not the seller and cannot cancel bids.");
-            response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+            response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
             return;
         }
 
@@ -62,12 +65,12 @@
         session.setAttribute("alertOK", "Bid has been cancelled.");
 
         // Redirect back to auction
-        response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
         return;
 
     } catch (Exception e) {
         session.setAttribute("bidError", "Error cancelling bid: " + e.getMessage());
-        response.sendRedirect("viewAuction.jsp?auction_id=" + auctionId);
+        response.sendRedirect("../viewAuction.jsp?auction_id=" + auctionId);
         return;
 
     } finally {
