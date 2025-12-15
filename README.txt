@@ -1,8 +1,11 @@
 Authors: Andres Castro, Dennie Yuen, Gregory Moore
 
-Admin Login Information:
-
-
+Login Information (username: password):
+Admin: password 
+rep1: password
+rep2: password
+user1: password
+user2:password
 
 File Descriptors:
 
@@ -53,3 +56,4 @@ submitCreateAlert.jsp – Processes user-defined alerts.
 viewAuction.jsp – Displays full auction details, bid history, bidding options, auto-bid settings, and seller controls.
 
 viewitem.jsp – Item-view page, usually pre–auction redesign, previously displaying item details.
+
